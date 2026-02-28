@@ -1,5 +1,5 @@
 {
-  "name": "inkdown",
+  "name": "streammark",
   "version": "1.0.1",
   "description": "Beautiful terminal markdown renderer with first-class streaming support",
   "type": "module",
@@ -10,7 +10,15 @@
   "scripts": {
     "demo": "node demo.js"
   },
-  "keywords": ["markdown", "terminal", "cli", "streaming", "ansi", "llm", "agent"],
+  "keywords": [
+    "markdown",
+    "terminal",
+    "cli",
+    "streaming",
+    "ansi",
+    "llm",
+    "agent"
+  ],
   "dependencies": {
     "chalk": "^5.3.0",
     "string-width": "^7.0.0"
