@@ -27,6 +27,16 @@ function termWidth() {
 
 // ── Basic Syntax Highlighter (token-based, no deps) ──────────────────────────
 
+// ── Alert Types ──────────────────────────────────────────────────────────────
+
+const ALERT_TYPES = {
+  NOTE:     { icon: 'ℹ',  label: 'NOTE',     color: '#58A6FF', bg: '#1E3A5F' },
+  WARNING:  { icon: '⚠',  label: 'WARNING',  color: '#D29922', bg: '#3D2810' },
+  TIP:      { icon: '💡', label: 'TIP',      color: '#3FB950', bg: '#1A3A1A' },
+  IMPORTANT:{ icon: '🔔', label: 'IMPORTANT',color: '#8957E5', bg: '#2D1B4E' },
+  CAUTION:  { icon: '⚡', label: 'CAUTION',  color: '#F85149', bg: '#3D1618' },
+};
+
 const TOKEN_RULES = {
   javascript: [
     { re: /\/\/.*$/m,                          type: 'comment' },
@@ -408,10 +418,51 @@ export class Renderer {
 
   _renderBlockquote({ lines }) {
     const theme = this.theme;
+
+    // Check for GitHub-style alerts: > [!TYPE]
+    const firstLine = lines[0] || '';
+    const alertMatch = firstLine.match(/^\[!(\w+)\]\s*(.*)$/);
+
+    if (alertMatch) {
+      const alertType = ALERT_TYPES[alertMatch[1].toUpperCase()];
+      if (alertType) {
+        return this._renderAlert(lines, alertType, alertMatch[2], theme);
+      }
+    }
+
+    // Regular blockquote
     const border = chalk.hex(theme.blockquote.border)('┃ ');
     return '\n' + lines.map(line => {
       return border + applyStyle(renderInline(line, theme), theme.blockquote);
     }).join('\n') + '\n';
+  }
+
+  _renderAlert(lines, alertType, remainingFirstLine, theme) {
+    const { icon, label, color, bg } = alertType;
+    const width = termWidth();
+    const pad = ' ';
+
+    // Build header
+    const headerText = remainingFirstLine
+      ? `${icon} ${label}: ${remainingFirstLine}`
+      : `${icon} ${label}`;
+
+    const topBorder = chalk.hex(color)('╭' + repeat('─', width - 2) + '╮');
+    const bottomBorder = chalk.hex(color)('╰' + repeat('─', width - 2) + '╯');
+
+    // Header line with background styling simulation
+    const headerStyled = chalk.hex(color).bold(headerText);
+    const headerLine = chalk.hex(color)('│ ') + headerStyled;
+
+    // Content lines (skip first alert line, render rest)
+    const contentLines = lines.slice(1).map(line => {
+      const content = line.startsWith('> ') ? line.slice(2) : line;
+      const rendered = renderInline(content, theme);
+      return chalk.hex(color)('│ ') + applyStyle(rendered, theme.blockquote);
+    });
+
+    const result = ['', topBorder, headerLine, ...contentLines, bottomBorder, ''];
+    return result.join('\n');
   }
 
   _renderUl({ items }) {

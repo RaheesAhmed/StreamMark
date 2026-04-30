@@ -1,8 +1,8 @@
-// ─── Inkdown Demo ─────────────────────────────────────────────────────────────
+// ─── streammark Demo ─────────────────────────────────────────────────────────────
 import { render, print, MarkdownStream } from './src/index.js';
 
 const SAMPLE_MARKDOWN = `
-# Inkdown Terminal Renderer
+# streammark Terminal Renderer
 
 A **beautiful**, streaming-first markdown renderer for the terminal.
 
@@ -16,13 +16,13 @@ A **beautiful**, streaming-first markdown renderer for the terminal.
 ## Installation
 
 \`\`\`bash
-npm install inkdown
+npm install streammark
 \`\`\`
 
 ## Basic Usage
 
 \`\`\`javascript
-import { render, print, MarkdownStream } from 'inkdown';
+import { render, print, MarkdownStream } from 'streammark';
 
 // One-shot render
 console.log(render('# Hello World', { theme: 'dracula' }));
@@ -58,6 +58,23 @@ print(f"Found {len(result)} numbers")
 | write  | \`stream.write(chunk)\` | Feed a chunk |
 | end    | \`stream.end()\`     | Flush and finish |
 
+## GitHub-Style Alerts
+
+> [!NOTE]
+> This is a **NOTE** alert. Useful for highlighting important information.
+
+> [!TIP]
+> This is a **TIP** alert. Help users discover helpful suggestions.
+
+> [!IMPORTANT]
+> This is an **IMPORTANT** alert. Critical information users need to know.
+
+> [!WARNING]
+> This is a **WARNING** alert. Urgent info that needs immediate attention.
+
+> [!CAUTION]
+> This is a **CAUTION** alert. Potential risks or negative outcomes.
+
 ## Blockquotes
 
 > **Note:** This is optimised for LLM/agent output streams where you receive
@@ -85,6 +102,9 @@ async function streamingDemo() {
 
 This text is being streamed **token by token**, just like a real LLM response.
 
+> [!TIP]
+> The code block below was buffered until the closing fence, then rendered all at once with full syntax highlighting.
+
 \`\`\`javascript
 const result = await agent.run({
   task: "Build a REST API",
@@ -93,13 +113,17 @@ const result = await agent.run({
 console.log(result.output);
 \`\`\`
 
-The code block above was buffered until the closing fence, then rendered all at once with full syntax highlighting.
+> [!IMPORTANT]
+> Tables are also buffered until complete to ensure proper column alignment.
 
 | Agent | Status | Time |
 |-------|--------|------|
 | backend | ✅ done | 4.2s |
 | security | ✅ done | 2.1s |
 | qa | ✅ done | 3.8s |
+
+> [!NOTE]
+> All alerts support **inline markdown** including \`code\`, *italic*, and **bold** text.
 `;
 
   // Simulate token-by-token streaming (random chunk sizes 1-8 chars)

@@ -80,11 +80,35 @@ new MarkdownStream({ theme: myTheme });
 | Code blocks | **Buffered** until closing ` ``` ` — then rendered with syntax highlighting |
 | Tables | **Buffered** until table ends — then rendered with borders |
 | Blockquotes | **Buffered** until block ends |
-| Lists | **Buffered** until paragraph boundary |
+| Lists | **Buffered** until paragraph boundary (supports checkboxes) |
+| Alerts | **Buffered** and rendered with styled boxes |
+
+## GitHub-Style Alerts
+
+Beautiful styled alert boxes for important callouts:
+
+```markdown
+> [!NOTE]
+> Useful information that users should know.
+
+> [!TIP]
+> Helpful advice for doing things better.
+
+> [!IMPORTANT]
+> Key information users need to know.
+
+> [!WARNING]
+> Urgent info that needs immediate attention.
+
+> [!CAUTION]
+> Advises about risks or negative outcomes.
+```
+
+Alerts support full **inline markdown** including `code`, *italic*, and **bold** text.
 
 ## Syntax Highlighting
 
-Supported: `js`, `ts`, `jsx`, `tsx`, `python`, `bash`, `sh`, `json`, `css`
+Supported: `js`, `ts`, `jsx`, `tsx`, `python`, `bash`, `sh`, `json`, `css`, `zsh`
 
 No external deps — built-in token-based highlighter.
 
@@ -109,3 +133,13 @@ Flush remaining content and finalize.
 
 #### `.pipe(asyncIterable)`
 Convenience: pipe any async iterable of string chunks.
+
+## Features
+
+- **GitHub-style alerts** — `> [!NOTE]`, `> [!WARNING]`, `> [!TIP]`, `> [!IMPORTANT]`, `> [!CAUTION]`
+- **Streaming-first** — Renders tokens as they arrive from LLMs
+- **4 beautiful themes** — dark, dracula, nord, light
+- **Syntax highlighting** — JavaScript, TypeScript, Python, Bash, JSON, CSS
+- **Tables & blockquotes** — Box-drawing borders and styled quotes
+- **Checkboxes** — Support for `- [x]` and `- [ ]` task lists
+- **Zero dependencies** — Built-in tokenizer, no external parsers

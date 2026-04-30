@@ -6,8 +6,9 @@
 // Strategy:
 //   - Inline text  → render immediately as it arrives
 //   - Code blocks  → buffer until closing ``` then render complete
-//   - Block elements (tables, blockquotes) → buffer by paragraph boundary
+//   - Block elements (tables, blockquotes, alerts) → buffer by paragraph boundary
 //   - Headings, HRs → render as soon as the line is complete
+//   - Alerts (GitHub-style) → detect [!TYPE] and render with special styling
 
 import { Renderer } from './renderer.js';
 
@@ -16,7 +17,12 @@ const STATE = {
   CODE_BLOCK: 'code_block',
   TABLE:      'table',
   BLOCKQUOTE: 'blockquote',
+  LIST:       'list',
+  ALERT:      'alert',
 };
+
+// Alert type detection regex
+const ALERT_REGEX = /^\[!(NOTE|WARNING|TIP|IMPORTANT|CAUTION)\]/i;
 
 export class MarkdownStream {
   /**
@@ -91,7 +97,6 @@ export class MarkdownStream {
       // ── Inside a code block ──────────────────────────────────────────────
       case STATE.CODE_BLOCK: {
         if (line.startsWith('```')) {
-          // Closing fence — render the whole block
           this._blockBuf.push(line);
           const code = this._blockBuf.join('\n');
           this._emit(this.renderer.render(code));
@@ -108,17 +113,29 @@ export class MarkdownStream {
         if (line.includes('|')) {
           this._blockBuf.push(line);
         } else {
-          // Table ended
           this._flushBlock();
           this._state = STATE.NORMAL;
-          this._processLine(line); // re-process the non-table line
+          this._processLine(line);
         }
         break;
       }
 
-      // ── Inside a blockquote ──────────────────────────────────────────────
-      case STATE.BLOCKQUOTE: {
+      // ── Inside a blockquote or alert ─────────────────────────────────────
+      case STATE.BLOCKQUOTE:
+      case STATE.ALERT: {
         if (line.startsWith('> ')) {
+          this._blockBuf.push(line);
+        } else {
+          this._flushBlock();
+          this._state = STATE.NORMAL;
+          this._processLine(line);
+        }
+        break;
+      }
+
+      // ── Inside a list ────────────────────────────────────────────────────
+      case STATE.LIST: {
+        if (this._isListItem(line) || this._isContinuation(line)) {
           this._blockBuf.push(line);
         } else {
           this._flushBlock();
@@ -139,16 +156,22 @@ export class MarkdownStream {
           break;
         }
 
-        // Table start
-        if (line.includes('|')) {
+        // Table start (needs separator line to confirm)
+        if (line.includes('|') && !line.startsWith('>')) {
           this._state    = STATE.TABLE;
           this._blockBuf = [line];
           break;
         }
 
-        // Blockquote
+        // Alert/Blockquote detection
         if (line.startsWith('> ')) {
-          this._state    = STATE.BLOCKQUOTE;
+          const content = line.slice(2);
+          // Check if it's a GitHub-style alert
+          if (ALERT_REGEX.test(content)) {
+            this._state = STATE.ALERT;
+          } else {
+            this._state = STATE.BLOCKQUOTE;
+          }
           this._blockBuf = [line];
           break;
         }
@@ -174,14 +197,14 @@ export class MarkdownStream {
           break;
         }
 
-        // List items — buffer by paragraph (for nested lists to work)
-        if (/^(\s*)[*\-+]\s/.test(line) || /^\d+\.\s/.test(line)) {
-          this._blockBuf.push(line);
+        // List items — enter list state for proper nesting
+        if (this._isListItem(line)) {
+          this._state    = STATE.LIST;
+          this._blockBuf = [line];
           break;
         }
 
-        // Regular text / paragraph — accumulate and render line-by-line
-        // (safe to render inline immediately since we have the full line)
+        // Regular text / paragraph — flush and render immediately
         this._flushBlock();
         this._emit(this.renderer.render(line) + '\n');
         break;
@@ -189,11 +212,31 @@ export class MarkdownStream {
     }
   }
 
+  _isListItem(line) {
+    return /^(\s*)[*\-+](?:\s|\[x\]|\[ \])\s/.test(line) || // Unordered: -, *, + with checkbox support
+           /^(\s*)\d+\.\s/.test(line);                        // Ordered: 1., 2., etc.
+  }
+
+  _isContinuation(line) {
+    // Lines that continue a list item (indented or blank within list context)
+    if (line.trim() === '') return true;
+    return /^(\s+).+$/.test(line) && !this._isListItem(line);
+  }
+
   _flushBlock(force = false) {
     if (!this._blockBuf.length) return;
 
     // Don't flush an open code block unless forced (stream ended)
     if (this._state === STATE.CODE_BLOCK && !force) return;
+
+    // Don't flush incomplete alerts/blockquotes/tables/lists unless forced
+    if ([STATE.ALERT, STATE.BLOCKQUOTE, STATE.TABLE, STATE.LIST].includes(this._state) && !force) {
+      // Check if we have enough content to render
+      if (this._state === STATE.TABLE && this._blockBuf.length < 2) {
+        // Table needs at least 2 rows to be valid, wait for more
+        return;
+      }
+    }
 
     const md = this._blockBuf.join('\n');
     this._emit(this.renderer.render(md));

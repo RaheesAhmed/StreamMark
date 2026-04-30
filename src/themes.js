@@ -40,6 +40,13 @@ export const themes = {
     tableCell:     { color: '#D4D4D4' },
     tableAlt:      { color: '#1E1E2E' },        // alt row bg hint
 
+    // Alerts (GitHub-style)
+    alertNote:     { color: '#58A6FF', bg: '#1E3A5F', icon: 'ℹ' },
+    alertWarning:  { color: '#D29922', bg: '#3D2810', icon: '⚠' },
+    alertTip:      { color: '#3FB950', bg: '#1A3A1A', icon: '💡' },
+    alertImportant:{ color: '#8957E5', bg: '#2D1B4E', icon: '🔔' },
+    alertCaution:  { color: '#F85149', bg: '#3D1618', icon: '⚡' },
+
     // Code syntax (basic token coloring)
     syntax: {
       keyword:   '#C792EA',
@@ -86,6 +93,12 @@ export const themes = {
     tableCell:     { color: '#F8F8F2' },
     tableAlt:      { color: '#282A36' },
 
+    alertNote:     { color: '#8BE9FD', bg: '#2A3F5F', icon: 'ℹ' },
+    alertWarning:  { color: '#FFB86C', bg: '#4A3518', icon: '⚠' },
+    alertTip:      { color: '#50FA7B', bg: '#1F3528', icon: '💡' },
+    alertImportant:{ color: '#BD93F9', bg: '#3D2858', icon: '🔔' },
+    alertCaution:  { color: '#FF5555', bg: '#4A2028', icon: '⚡' },
+
     syntax: {
       keyword:     '#FF79C6',
       string:      '#F1FA8C',
@@ -131,6 +144,12 @@ export const themes = {
     tableCell:     { color: '#D8DEE9' },
     tableAlt:      { color: '#2E3440' },
 
+    alertNote:     { color: '#88C0D0', bg: '#3B4252', icon: 'ℹ' },
+    alertWarning:  { color: '#EBCB8B', bg: '#4C566A', icon: '⚠' },
+    alertTip:      { color: '#A3BE8C', bg: '#434C5E', icon: '💡' },
+    alertImportant:{ color: '#B48EAD', bg: '#4C566A', icon: '🔔' },
+    alertCaution:  { color: '#BF616A', bg: '#4C566A', icon: '⚡' },
+
     syntax: {
       keyword:     '#81A1C1',
       string:      '#A3BE8C',
@@ -175,6 +194,12 @@ export const themes = {
     tableBorder:   { color: '#E5E7EB' },
     tableCell:     { color: '#1F2937' },
     tableAlt:      { color: '#F9FAFB' },
+
+    alertNote:     { color: '#2563EB', bg: '#DBEAFE', icon: 'ℹ' },
+    alertWarning:  { color: '#D97706', bg: '#FEF3C7', icon: '⚠' },
+    alertTip:      { color: '#16A34A', bg: '#DCFCE7', icon: '💡' },
+    alertImportant:{ color: '#7C3AED', bg: '#EDE9FE', icon: '🔔' },
+    alertCaution:  { color: '#DC2626', bg: '#FEE2E2', icon: '⚡' },
 
     syntax: {
       keyword:     '#7C3AED',
